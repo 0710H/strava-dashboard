@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% set page_title = "Athletes" %}
+{% set active_page = "athletes" %}
+
+{% block content %}
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">THE COMMUNITY</p>
+      <h1>Athletes</h1>
+      <p class="subtitle">Meet the people sharing their miles.</p>
+    </div>
+    <span class="date-chip">{{ users|length }} ATHLETES</span>
+  </div>
+
+  {% if users %}
+    <section class="athlete-grid" aria-label="Athletes">
+      {% for user in users %}
+        <a class="athlete-card" href="{{ url_for('user_profile', user_id=user.user_id) }}">
+          <span class="profile-avatar">{{ user.username[0]|upper }}</span>
+          <strong>{{ user.username }}</strong>
+          <span>{{ user.activity_count }} activities <i>·</i> {{ '%.1f'|format(user.total_distance|float) }} km</span>
+          <span class="athlete-card-link">View profile <b>→</b></span>
+        </a>
+      {% endfor %}
+    </section>
+  {% else %}
+    <section class="activity-panel">
+      {% set activities = [] %}
+      {% set empty_title = "No athletes yet" %}
+      {% set empty_message = "Athletes will appear here after you add users to the database." %}
+      {% include "_activity_list.html" %}
+    </section>
+  {% endif %}
+{% endblock %}

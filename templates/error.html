@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% set db_connected = false %}
+
+{% block content %}
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">SOMETHING WENT WRONG</p>
+      <h1>{{ page_title }}</h1>
+      <p class="subtitle">This page is temporarily unavailable.</p>
+    </div>
+  </div>
+  <section class="alert" role="alert">
+    <span class="alert-icon" aria-hidden="true">!</span>
+    <div>
+      <strong>Can’t reach the database</strong>
+      <p>{{ database_error }}</p>
+      <p class="alert-hint">Check MySQL and your .env settings, then refresh this page.</p>
+    </div>
+  </section>
+{% endblock %}

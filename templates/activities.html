@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% set page_title = "Activities" %}
+{% set active_page = "activities" %}
+
+{% block content %}
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">THE COMMUNITY</p>
+      <h1>Activities</h1>
+      <p class="subtitle">Recent runs, rides, and adventures from your athletes.</p>
+    </div>
+    <span class="date-chip">{{ activities|length }} ACTIVITIES</span>
+  </div>
+
+  <section class="activity-panel">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">ACTIVITY FEED</p>
+        <h2>All activities</h2>
+      </div>
+      <span class="results-count">{{ activities|length }} total</span>
+    </div>
+    {% set empty_title = "No activities yet" %}
+    {% set empty_message = "Activities will appear here after you add them to the database." %}
+    {% include "_activity_list.html" %}
+  </section>
+{% endblock %}

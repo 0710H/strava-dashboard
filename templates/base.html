@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fc5200">
+    <title>{{ page_title|default('Strava') }} · Strava</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="{{ url_for('dashboard') }}" aria-label="Strava dashboard">
+        <span class="brand-mark" aria-hidden="true">S</span>
+        <span>strava</span>
+      </a>
+      <span class="topbar-label">Activity dashboard</span>
+      <span class="connection-indicator">
+        <span class="status-dot {{ 'is-online' if db_connected|default(true) else 'is-offline' }}"></span>
+        {{ 'Database connected' if db_connected|default(true) else 'Database disconnected' }}
+      </span>
+    </header>
+
+    <div class="page-shell">
+      <aside class="sidebar" aria-label="Main navigation">
+        <span class="sidebar-caption">YOUR TRAINING</span>
+        <a class="nav-link {{ 'is-active' if active_page == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
+          <span class="nav-icon" aria-hidden="true">▦</span> Dashboard
+        </a>
+        <a class="nav-link {{ 'is-active' if active_page == 'activities' else '' }}" href="{{ url_for('activities_page') }}">
+          <span class="nav-icon" aria-hidden="true">⌁</span> Activities
+        </a>
+        <a class="nav-link {{ 'is-active' if active_page == 'routes' else '' }}" href="{{ url_for('routes_page') }}">
+          <span class="nav-icon" aria-hidden="true">◎</span> Routes
+        </a>
+        <a class="nav-link {{ 'is-active' if active_page == 'athletes' else '' }}" href="{{ url_for('users_page') }}">
+          <span class="nav-icon" aria-hidden="true">♙</span> Athletes
+        </a>
+        <div class="sidebar-note">
+          <span class="note-icon" aria-hidden="true">✦</span>
+          <strong>Your space to move</strong>
+          <p>Explore activities, routes, and the people behind them.</p>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </body>
+</html>

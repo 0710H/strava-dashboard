@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% set page_title = "Dashboard" %}
+{% set active_page = "dashboard" %}
+
+{% block content %}
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">OVERVIEW</p>
+      <h1>Your training</h1>
+      <p class="subtitle">A snapshot of the community and its activity.</p>
+    </div>
+    <span class="date-chip">ALL TIME</span>
+  </div>
+
+  <section class="stats-grid" aria-label="Training statistics">
+    <a class="stat-card stat-card-link" href="{{ url_for('activities_page') }}">
+      <div class="stat-top"><span class="stat-icon orange">↗</span><span class="stat-label">TOTAL DISTANCE</span></div>
+      <div class="stat-value">{{ '%.1f'|format(stats.total_distance|float) }}<span class="stat-unit">km</span></div>
+      <div class="stat-foot">Across all activities</div>
+    </a>
+    <a class="stat-card stat-card-link" href="{{ url_for('activities_page') }}">
+      <div class="stat-top"><span class="stat-icon purple">◷</span><span class="stat-label">ACTIVITIES</span></div>
+      <div class="stat-value">{{ stats.activity_count }}</div>
+      <div class="stat-foot">Logged sessions</div>
+    </a>
+    <a class="stat-card stat-card-link" href="{{ url_for('routes_page') }}">
+      <div class="stat-top"><span class="stat-icon blue">⌖</span><span class="stat-label">ROUTES</span></div>
+      <div class="stat-value">{{ stats.route_count }}</div>
+      <div class="stat-foot">Routes in the library</div>
+    </a>
+    <a class="stat-card stat-card-link" href="{{ url_for('users_page') }}">
+      <div class="stat-top"><span class="stat-icon green">♙</span><span class="stat-label">ATHLETES</span></div>
+      <div class="stat-value">{{ stats.user_count }}</div>
+      <div class="stat-foot">Community members</div>
+    </a>
+  </section>
+
+  <section class="activity-panel">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">OUT AND ABOUT</p>
+        <h2>Recent activities</h2>
+      </div>
+      <a class="text-link" href="{{ url_for('activities_page') }}">View all →</a>
+    </div>
+    {% set empty_title = "Your first activity is waiting" %}
+    {% set empty_message = "Once you add data to your Strava database, your activities will appear here." %}
+    {% include "_activity_list.html" %}
+  </section>
+
+  <footer class="page-footer">
+    <span>MADE FOR THE MILES AHEAD</span>
+    <span>LOCAL DASHBOARD <i class="footer-dot"></i></span>
+  </footer>
+{% endblock %}

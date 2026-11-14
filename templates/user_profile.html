@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% set page_title = user.username %}
+{% set active_page = "athletes" %}
+
+{% block content %}
+  <a class="back-link" href="{{ url_for('users_page') }}">← All athletes</a>
+  <section class="profile-header">
+    <div class="profile-avatar profile-avatar-large">{{ user.username[0]|upper }}</div>
+    <div class="profile-identity">
+      <p class="eyebrow">ATHLETE PROFILE</p>
+      <h1>{{ user.username }}</h1>
+      <p class="subtitle">Member of the Strava community</p>
+    </div>
+  </section>
+
+  <section class="stats-grid profile-stats" aria-label="Athlete statistics">
+    <article class="stat-card">
+      <div class="stat-top"><span class="stat-icon orange">↗</span><span class="stat-label">TOTAL DISTANCE</span></div>
+      <div class="stat-value">{{ '%.1f'|format(user.total_distance|float) }}<span class="stat-unit">km</span></div>
+      <div class="stat-foot">Across all activities</div>
+    </article>
+    <article class="stat-card">
+      <div class="stat-top"><span class="stat-icon purple">◷</span><span class="stat-label">ACTIVITIES</span></div>
+      <div class="stat-value">{{ user.activity_count }}</div>
+      <div class="stat-foot">Logged sessions</div>
+    </article>
+    <article class="stat-card">
+      <div class="stat-top"><span class="stat-icon blue">⌖</span><span class="stat-label">ROUTES</span></div>
+      <div class="stat-value">{{ user.route_count }}</div>
+      <div class="stat-foot">Routes shared</div>
+    </article>
+    <article class="stat-card">
+      <div class="stat-top"><span class="stat-icon green">♙</span><span class="stat-label">FOLLOWERS</span></div>
+      <div class="stat-value">{{ user.follower_count }}</div>
+      <div class="stat-foot">{{ user.following_count }} following</div>
+    </article>
+  </section>
+
+  <section class="activity-panel profile-section">
+    <div class="section-heading">
+      <div><p class="eyebrow">OUT AND ABOUT</p><h2>Activities</h2></div>
+      <span class="results-count">{{ activities|length }} total</span>
+    </div>
+    {% set empty_title = "No activities yet" %}
+    {% set empty_message = "This athlete's activities will appear here." %}
+    {% include "_activity_list.html" %}
+  </section>
+
+  {% if routes %}
+    <section class="profile-routes">
+      <div class="section-heading">
+        <div><p class="eyebrow">PLACES TO GO</p><h2>Routes</h2></div>
+        <a class="text-link" href="{{ url_for('routes_page') }}">All routes →</a>
+      </div>
+      <div class="profile-route-list">
+        {% for route in routes %}
+          <a class="profile-route" href="{{ url_for('routes_page') }}#route-{{ route.route_id }}">
+            <span class="route-mini-icon">⌖</span>
+            <span><strong>{{ route.route_name }}</strong><small>{{ '%.2f'|format(route.distance|float) }} km · {{ '%.0f'|format(route.elevation|float) }} m elevation</small></span>
+            <b>→</b>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}

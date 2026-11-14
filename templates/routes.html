@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% set page_title = "Routes" %}
+{% set active_page = "routes" %}
+
+{% block content %}
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">FIND YOUR WAY</p>
+      <h1>Routes</h1>
+      <p class="subtitle">Routes shared by athletes in your community.</p>
+    </div>
+    <span class="date-chip">{{ routes|length }} ROUTES</span>
+  </div>
+
+  {% if routes %}
+    <section class="route-grid" aria-label="Routes">
+      {% for route in routes %}
+        <article class="route-card" id="route-{{ route.route_id }}">
+          <div class="route-art" aria-hidden="true"><span>⌖</span></div>
+          <div class="route-card-body">
+            <p class="eyebrow">COMMUNITY ROUTE</p>
+            <h2>{{ route.route_name }}</h2>
+            <p class="route-description">{{ route.description or "No route description provided." }}</p>
+            <div class="route-metrics">
+              <div><strong>{{ '%.2f'|format(route.distance|float) }}</strong><span>KM</span></div>
+              <div><strong>{{ '%.0f'|format(route.elevation|float) }}</strong><span>METRES UP</span></div>
+              <div><strong>{{ route.activity_count }}</strong><span>ACTIVITIES</span></div>
+            </div>
+            <p class="route-owner">Created by <a class="text-link" href="{{ url_for('user_profile', user_id=route.user_id) }}">{{ route.username }}</a></p>
+          </div>
+        </article>
+      {% endfor %}
+    </section>
+  {% else %}
+    <section class="activity-panel">
+      {% set activities = [] %}
+      {% set empty_title = "No routes yet" %}
+      {% set empty_message = "Routes will appear here after you add them to the database." %}
+      {% include "_activity_list.html" %}
+    </section>
+  {% endif %}
+{% endblock %}
