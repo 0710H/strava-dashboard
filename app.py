@@ -3,11 +3,12 @@ import os
 
 import mysql.connector
 from dotenv import load_dotenv
-from flask import Flask, abort, jsonify, render_template
+from flask import Flask, abort, flash, jsonify, redirect, render_template, request, url_for
 
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", "dev-strava-dashboard-secret")
 logging.basicConfig(level=logging.INFO)
 
 
@@ -35,6 +36,17 @@ def fetch_all(query, parameters=()):
 def fetch_one(query, parameters=()):
     rows = fetch_all(query, parameters)
     return rows[0] if rows else None
+
+
+def execute(query, parameters=()):
+    connection = get_connection()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(query, parameters)
+            connection.commit()
+            return cursor.lastrowid
+    finally:
+        connection.close()
 
 
 ACTIVITY_QUERY = """
@@ -132,9 +144,49 @@ def routes_page():
             ORDER BY r.created_at DESC, r.route_id DESC
             """
         )
-        return render_template("routes.html", routes=routes)
+        users = fetch_all(
+            "SELECT user_id, username FROM users ORDER BY username"
+        )
+        return render_template("routes.html", routes=routes, users=users)
     except mysql.connector.Error:
         return database_error_page()
+
+
+@app.post("/routes/create")
+def create_route():
+    try:
+        user_id = request.form.get("user_id", type=int)
+        route_name = (request.form.get("route_name") or "").strip()
+        distance = request.form.get("distance", type=float)
+        elevation = request.form.get("elevation", type=float)
+        description = (request.form.get("description") or "").strip() or None
+
+        if not user_id or not route_name or distance is None or elevation is None:
+            flash("Please fill in athlete, route name, distance, and elevation.", "error")
+            return redirect(url_for("routes_page"))
+
+        if distance < 0 or elevation < 0:
+            flash("Distance and elevation must be zero or greater.", "error")
+            return redirect(url_for("routes_page"))
+
+        user = fetch_one("SELECT user_id FROM users WHERE user_id = %s", (user_id,))
+        if user is None:
+            flash("Selected athlete was not found.", "error")
+            return redirect(url_for("routes_page"))
+
+        execute(
+            """
+            INSERT INTO routes (user_id, route_name, distance, elevation, description)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (user_id, route_name[:150], distance, elevation, description),
+        )
+        flash(f'Route "{route_name}" created successfully.', "success")
+        return redirect(url_for("routes_page"))
+    except mysql.connector.Error:
+        app.logger.exception("Failed to create route")
+        flash("Could not create the route. Check the database connection.", "error")
+        return redirect(url_for("routes_page"))
 
 
 @app.get("/users")
