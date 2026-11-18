@@ -13,6 +13,58 @@
     <span class="date-chip">{{ routes|length }} ROUTES</span>
   </div>
 
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}" role="status">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <section class="create-route-panel" aria-label="Create a route">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">NEW ROUTE</p>
+        <h2>Create a route</h2>
+      </div>
+    </div>
+    <form class="create-route-form" method="post" action="{{ url_for('create_route') }}">
+      <div class="form-grid">
+        <label class="form-field">
+          <span>Athlete</span>
+          <select name="user_id" required {% if not users %}disabled{% endif %}>
+            <option value="">Select an athlete</option>
+            {% for user in users %}
+              <option value="{{ user.user_id }}">{{ user.username }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="form-field">
+          <span>Route name</span>
+          <input type="text" name="route_name" maxlength="150" placeholder="e.g. Harbour Loop" required>
+        </label>
+        <label class="form-field">
+          <span>Distance (km)</span>
+          <input type="number" name="distance" min="0" step="0.01" placeholder="8.40" required>
+        </label>
+        <label class="form-field">
+          <span>Elevation (m)</span>
+          <input type="number" name="elevation" min="0" step="0.01" placeholder="65" required>
+        </label>
+        <label class="form-field form-field-full">
+          <span>Description <em>(optional)</em></span>
+          <textarea name="description" rows="2" placeholder="A short note about the route"></textarea>
+        </label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" {% if not users %}disabled{% endif %}>Create route</button>
+        {% if not users %}
+          <p class="form-hint">Add athletes to the database first, then you can create routes.</p>
+        {% endif %}
+      </div>
+    </form>
+  </section>
+
   {% if routes %}
     <section class="route-grid" aria-label="Routes">
       {% for route in routes %}
@@ -36,7 +88,7 @@
     <section class="activity-panel">
       {% set activities = [] %}
       {% set empty_title = "No routes yet" %}
-      {% set empty_message = "Routes will appear here after you add them to the database." %}
+      {% set empty_message = "Use the form above to create your first route." %}
       {% include "_activity_list.html" %}
     </section>
   {% endif %}
