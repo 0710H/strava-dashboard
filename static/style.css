@@ -23,9 +23,44 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   background: #fff;
   border-bottom: 1px solid var(--line);
 }
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-left: auto;
+}
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.logout-form { display: inline; margin: 0; }
+.btn-ghost {
+  appearance: none;
+  border: 1px solid #e6eae6;
+  border-radius: 6px;
+  padding: 6px 11px;
+  background: #fff;
+  color: #647069;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn-ghost:hover {
+  border-color: #f0b18a;
+  color: #e64c00;
+  background: #fff7f2;
+}
+a.btn-ghost { display: inline-flex; align-items: center; }
+.topbar-login { white-space: nowrap; }
 
 .brand {
   display: inline-flex;
@@ -51,7 +86,7 @@ body {
   letter-spacing: -1px;
 }
 
-.topbar-label { margin-left: -48px; color: #727b76; font-size: 13px; font-weight: 600; }
+.topbar-label { color: #727b76; font-size: 13px; font-weight: 600; }
 .connection-indicator { display: flex; align-items: center; gap: 8px; color: #626d67; font-size: 12px; font-weight: 600; }
 .status-dot, .footer-dot { width: 7px; height: 7px; display: inline-block; border-radius: 50%; }
 .is-online, .footer-dot { background: #34a66a; }
@@ -213,6 +248,9 @@ a.activity-avatar:hover { background: #ffe1d0; }
 }
 .btn-primary {
   appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 0;
   border-radius: 7px;
   padding: 10px 16px;
@@ -222,13 +260,26 @@ a.activity-avatar:hover { background: #ffe1d0; }
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
+  text-decoration: none;
 }
-.btn-primary:hover { background: #e04800; }
+.btn-primary:hover { background: #e04800; color: #fff; }
 .btn-primary:disabled {
   opacity: .55;
   cursor: not-allowed;
 }
 .form-hint { margin: 0; color: #87918b; font-size: 11px; }
+.create-route-login {
+  padding: 18px 20px 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.create-route-login p {
+  margin: 0;
+  color: #7d8781;
+  font-size: 13px;
+}
 .flash {
   margin-bottom: 16px;
   padding: 12px 14px;
@@ -245,6 +296,47 @@ a.activity-avatar:hover { background: #ffe1d0; }
   border: 1px solid #f0d7c6;
   background: #fff8f2;
   color: #8a3d12;
+}
+
+.login-wrap {
+  min-height: calc(100vh - 140px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 24px;
+}
+.login-card {
+  width: min(420px, 100%);
+  padding: 28px 26px 24px;
+  border: 1px solid #e9ede9;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 8px #18231b08;
+}
+.login-card h1 { margin-bottom: 6px; font-size: 24px; }
+.login-card .subtitle { margin-bottom: 18px; }
+.login-form { display: flex; flex-direction: column; gap: 14px; }
+.btn-block { width: 100%; justify-content: center; text-align: center; }
+.login-hint {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid #eff1ef;
+}
+.login-hint ul {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.login-hint li {
+  margin-bottom: 5px;
+  color: #6e7872;
+  font-size: 12px;
+}
+.login-hint code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #f4f6f4;
+  font-size: 11px;
 }
 
 .athlete-card { min-height: 174px; padding: 19px; display: flex; flex-direction: column; align-items: center; color: inherit; text-align: center; text-decoration: none; transition: border-color .15s, transform .15s; }
@@ -286,6 +378,8 @@ a.activity-avatar:hover { background: #ffe1d0; }
 @media (max-width: 620px) {
   .topbar { height: 58px; padding: 0 17px; }
   .topbar-label { display: none; }
+  .connection-indicator { display: none; }
+  .topbar-right { gap: 10px; }
   .page-shell { min-height: calc(100vh - 58px); display: block; }
   .sidebar { display: flex; align-items: center; gap: 5px; overflow-x: auto; padding: 9px 13px; border-right: 0; border-bottom: 1px solid var(--line); }
   .sidebar-caption, .sidebar-note, .coming-soon { display: none; }
