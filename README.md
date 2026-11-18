@@ -1,17 +1,42 @@
 # Strava local dashboard
 
-A small Flask application that reads the local MySQL `strava` database. It includes
-a dashboard, activity feed, route directory, athlete directory, and individual
-athlete profiles. Empty tables display friendly empty states.
+A local Flask dashboard for a MySQL `strava` database. It includes a training
+dashboard, activity feed with activity CRUD, route and athlete directories, and
+individual athlete profiles. This demonstration app has no login; activity
+records are associated with an existing athlete selected in the form.
 
 ## Requirements
 
 - Python 3.10 or later
-- MySQL Server 8.0 with the `strava` database and tables created from `strava_schema.sql`
+- MySQL Server 8.0
+- A MySQL database initialized with `strava_schema.sql`
 
-## Run on Windows
+## Database setup
 
-Open PowerShell in this project folder and run:
+Start MySQL, then run these commands from this project directory in a terminal
+with the MySQL command-line client installed:
+
+```sh
+mysql -u root -p < strava_schema.sql
+mysql -u root -p strava < demo_data.sql
+```
+
+The schema script creates the `strava` database and its tables. The demo-data
+script inserts sample athletes, routes, activities, kudos, comments, and follows.
+Alternatively, open and execute each SQL file in MySQL Workbench.
+
+## Install and configure
+
+### macOS or Linux
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+cp .env.example .env
+```
+
+### Windows PowerShell
 
 ```powershell
 py -m venv .venv
@@ -20,19 +45,34 @@ python -m pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-Edit `.env` and set `DB_PASSWORD` to your local MySQL password. Keep `.env` private;
-it is excluded from Git by `.gitignore`.
+Edit `.env` and set `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD`
+for your local MySQL server. Keep `.env` private; it is excluded from Git.
 
-Then start the dashboard:
+## Run and use the dashboard
 
-```powershell
+Start the app from this directory:
+
+```sh
 python app.py
 ```
 
-Open [http://127.0.0.1:5000](http://127.0.0.1:5000). The sidebar links to the
-activity feed (`/activities`), route directory (`/routes`), and athlete directory
-(`/users`). Select an athlete to view their profile, activities, routes, and stats.
-To check database connectivity, visit [http://127.0.0.1:5000/healthz](http://127.0.0.1:5000/healthz).
+Open [http://127.0.0.1:5000](http://127.0.0.1:5000). The database health endpoint
+is [http://127.0.0.1:5000/healthz](http://127.0.0.1:5000/healthz).
 
-The app is read-only. Add data to MySQL and refresh a page to see it; forms or data
-import can be added later to match the desired workflows.
+- **Read:** The dashboard, activity feed, and athlete profiles display activities.
+- **Create:** Open **Activities**, choose **Log activity**, select an existing
+  athlete, and enter a title, distance in km, date/time, and duration in seconds.
+  A route is optional; routes shared by any athlete can be selected.
+- **Update:** Choose **Edit** beside an activity, change its details, and save.
+- **Delete:** Choose **Delete**, review the number of related kudos and comments,
+  then explicitly confirm. The existing schema cascades activity deletion to
+  those related records.
+
+For a focused CRUD regression check, run:
+
+```sh
+python -m unittest discover -s tests -v
+```
+
+The app is intended for local project demonstration and does not provide
+authentication or authorization. Do not expose it to an untrusted network.

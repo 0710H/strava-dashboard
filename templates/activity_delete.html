@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% set page_title = "Delete activity" %}
+{% set active_page = "activities" %}
+
+{% block content %}
+  <a class="back-link" href="{{ url_for('activities_page') }}">← All activities</a>
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">CONFIRM DELETION</p>
+      <h1>Delete activity?</h1>
+      <p class="subtitle">This permanently removes the activity from the database.</p>
+    </div>
+  </div>
+
+  <section class="delete-panel">
+    <h2>{{ activity.title }}</h2>
+    <p>Recorded for <strong>{{ activity.username }}</strong>.</p>
+    <div class="validation-alert" role="alert">
+      <strong>This also removes related data.</strong>
+      <p>The database will delete {{ activity.kudos_count }}
+        {{ "kudo" if activity.kudos_count == 1 else "kudos" }} and
+        {{ activity.comment_count }}
+        {{ "comment" if activity.comment_count == 1 else "comments" }}
+        associated with this activity.</p>
+    </div>
+    <form class="form-actions" method="post"
+          action="{{ url_for('delete_activity', activity_id=activity.activity_id) }}">
+      <a class="button button-secondary" href="{{ url_for('activities_page') }}">Keep activity</a>
+      <button class="button button-danger" type="submit">Delete activity and related data</button>
+    </form>
+  </section>
+{% endblock %}

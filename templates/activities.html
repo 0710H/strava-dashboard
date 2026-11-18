@@ -10,8 +10,15 @@
       <h1>Activities</h1>
       <p class="subtitle">Recent runs, rides, and adventures from your athletes.</p>
     </div>
-    <span class="date-chip">{{ activities|length }} ACTIVITIES</span>
+    <div class="heading-actions">
+      <span class="date-chip">{{ activities|length }} ACTIVITIES</span>
+      <a class="button button-primary" href="{{ url_for('create_activity') }}">+ Log activity</a>
+    </div>
   </div>
+
+  {% if notice %}
+    <p class="success-notice" role="status">{{ notice }}</p>
+  {% endif %}
 
   <section class="activity-panel">
     <div class="section-heading">
@@ -22,7 +29,7 @@
       <span class="results-count">{{ activities|length }} total</span>
     </div>
     {% set empty_title = "No activities yet" %}
-    {% set empty_message = "Activities will appear here after you add them to the database." %}
+    {% set empty_message = "Add an activity to start filling your training feed." %}
     {% include "_activity_list.html" %}
   </section>
 {% endblock %}
