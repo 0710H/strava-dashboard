@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% set active_page = "activities" %}
+
+{% block content %}
+  <a class="back-link" href="{{ url_for('activities_page') }}">← All activities</a>
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">ACTIVITY DETAILS</p>
+      <h1>{{ "Log an activity" if mode == "create" else "Edit activity" }}</h1>
+      <p class="subtitle">Record a session for an athlete in your local Strava database.</p>
+    </div>
+  </div>
+
+  {% if errors %}
+    <div class="validation-alert" role="alert">
+      <strong>Check the highlighted details:</strong>
+      <ul>
+        {% for error in errors.values() %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <form class="activity-form" method="post">
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="title">Activity title</label>
+        <input id="title" name="title" type="text" maxlength="150" required
+               value="{{ values.title }}" aria-invalid="{{ 'true' if errors.title else 'false' }}">
+        {% if errors.title %}<span class="field-error">{{ errors.title }}</span>{% endif %}
+      </div>
+
+      <div class="form-field">
+        <label for="user_id">Athlete</label>
+        <select id="user_id" name="user_id" required aria-invalid="{{ 'true' if errors.user_id else 'false' }}">
+          <option value="">Choose an athlete</option>
+          {% for user in users %}
+            <option value="{{ user.user_id }}" {% if values.user_id|string == user.user_id|string %}selected{% endif %}>
+              {{ user.username }}
+            </option>
+          {% endfor %}
+        </select>
+        {% if not users %}<span class="field-hint">Add an athlete to the users table before logging an activity.</span>{% endif %}
+        {% if errors.user_id %}<span class="field-error">{{ errors.user_id }}</span>{% endif %}
+      </div>
+
+      <div class="form-field">
+        <label for="distance">Distance (km)</label>
+        <input id="distance" name="distance" type="number" min="0.01" max="99999999.99"
+               step="0.01" required value="{{ values.distance }}"
+               aria-invalid="{{ 'true' if errors.distance else 'false' }}">
+        {% if errors.distance %}<span class="field-error">{{ errors.distance }}</span>{% endif %}
+      </div>
+
+      <div class="form-field">
+        <label for="activity_date">Date and time</label>
+        <input id="activity_date" name="activity_date" type="datetime-local" step="1" required
+               value="{{ values.activity_date }}"
+               aria-invalid="{{ 'true' if errors.activity_date else 'false' }}">
+        {% if errors.activity_date %}<span class="field-error">{{ errors.activity_date }}</span>{% endif %}
+      </div>
+
+      <div class="form-field">
+        <label for="duration">Duration (seconds)</label>
+        <input id="duration" name="duration" type="number" min="1" max="4294967295"
+               step="1" required value="{{ values.duration }}"
+               aria-invalid="{{ 'true' if errors.duration else 'false' }}">
+        {% if errors.duration %}<span class="field-error">{{ errors.duration }}</span>{% endif %}
+      </div>
+
+      <div class="form-field">
+        <label for="route_id">Route <span class="optional-label">optional</span></label>
+        <select id="route_id" name="route_id" aria-invalid="{{ 'true' if errors.route_id else 'false' }}">
+          <option value="">No route</option>
+          {% for route in routes %}
+            <option value="{{ route.route_id }}" {% if values.route_id|string == route.route_id|string %}selected{% endif %}>
+              {{ route.route_name }} — {{ route.username }}
+            </option>
+          {% endfor %}
+        </select>
+        <span class="field-hint">Routes from all athletes are available; the route owner is shown.</span>
+        {% if errors.route_id %}<span class="field-error">{{ errors.route_id }}</span>{% endif %}
+      </div>
+
+      <div class="form-field form-field-wide">
+        <label for="description">Description <span class="optional-label">optional</span></label>
+        <textarea id="description" name="description" rows="4"
+                  aria-invalid="{{ 'true' if errors.description else 'false' }}">{{ values.description }}</textarea>
+        {% if errors.description %}<span class="field-error">{{ errors.description }}</span>{% endif %}
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a class="button button-secondary" href="{{ url_for('activities_page') }}">Cancel</a>
+      <button class="button button-primary" type="submit">
+        {{ "Save activity" if mode == "create" else "Update activity" }}
+      </button>
+    </div>
+  </form>
+{% endblock %}
