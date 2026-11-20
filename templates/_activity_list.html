@@ -24,10 +24,12 @@
           <span>♥ {{ activity.kudos_count }}</span>
           <span>▤ {{ activity.comment_count }}</span>
         </div>
-        <div class="activity-actions" aria-label="Manage {{ activity.title }}">
-          <a href="{{ url_for('edit_activity', activity_id=activity.activity_id) }}">Edit</a>
-          <a class="danger-link" href="{{ url_for('confirm_delete_activity', activity_id=activity.activity_id) }}">Delete</a>
-        </div>
+        {% if current_user and current_user.user_id == activity.user_id %}
+          <div class="activity-actions" aria-label="Manage {{ activity.title }}">
+            <a href="{{ url_for('edit_activity', activity_id=activity.activity_id) }}">Edit</a>
+            <a class="danger-link" href="{{ url_for('confirm_delete_activity', activity_id=activity.activity_id) }}">Delete</a>
+          </div>
+        {% endif %}
       </article>
     {% endfor %}
   </div>
