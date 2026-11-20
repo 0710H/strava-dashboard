@@ -5,12 +5,38 @@
 
 {% block content %}
   <a class="back-link" href="{{ url_for('users_page') }}">← All athletes</a>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}" role="status">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
   <section class="profile-header">
     <div class="profile-avatar profile-avatar-large">{{ user.username[0]|upper }}</div>
     <div class="profile-identity">
       <p class="eyebrow">ATHLETE PROFILE</p>
       <h1>{{ user.username }}</h1>
       <p class="subtitle">Member of the Strava community</p>
+    </div>
+    <div class="profile-actions">
+      {% if viewer_is_self %}
+        <span class="you-badge">This is you</span>
+      {% elif current_user %}
+        {% if viewer_follows %}
+          <form method="post" action="{{ url_for('unfollow_user', user_id=user.user_id) }}">
+            <button type="submit" class="button button-secondary">Unfollow</button>
+          </form>
+        {% else %}
+          <form method="post" action="{{ url_for('follow_user', user_id=user.user_id) }}">
+            <button type="submit" class="button button-primary">Follow</button>
+          </form>
+        {% endif %}
+      {% else %}
+        <a class="button button-primary" href="{{ url_for('login', next=url_for('user_profile', user_id=user.user_id)) }}">Log in to follow</a>
+      {% endif %}
     </div>
   </section>
 
@@ -36,6 +62,50 @@
       <div class="stat-foot">{{ user.following_count }} following</div>
     </article>
   </section>
+
+  <div class="follow-panels">
+    <section class="follow-panel">
+      <div class="section-heading">
+        <div><p class="eyebrow">NETWORK</p><h2>Followers</h2></div>
+        <span class="results-count">{{ followers|length }}</span>
+      </div>
+      {% if followers %}
+        <ul class="follow-list">
+          {% for person in followers %}
+            <li>
+              <a class="follow-person" href="{{ url_for('user_profile', user_id=person.user_id) }}">
+                <span class="profile-avatar follow-avatar">{{ person.username[0]|upper }}</span>
+                <strong>{{ person.username }}</strong>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="follow-empty">No followers yet.</p>
+      {% endif %}
+    </section>
+
+    <section class="follow-panel">
+      <div class="section-heading">
+        <div><p class="eyebrow">NETWORK</p><h2>Following</h2></div>
+        <span class="results-count">{{ following|length }}</span>
+      </div>
+      {% if following %}
+        <ul class="follow-list">
+          {% for person in following %}
+            <li>
+              <a class="follow-person" href="{{ url_for('user_profile', user_id=person.user_id) }}">
+                <span class="profile-avatar follow-avatar">{{ person.username[0]|upper }}</span>
+                <strong>{{ person.username }}</strong>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="follow-empty">Not following anyone yet.</p>
+      {% endif %}
+    </section>
+  </div>
 
   <section class="activity-panel profile-section">
     <div class="section-heading">
