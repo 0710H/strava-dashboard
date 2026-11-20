@@ -13,15 +13,43 @@
     <span class="date-chip">{{ users|length }} ATHLETES</span>
   </div>
 
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}" role="status">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
   {% if users %}
     <section class="athlete-grid" aria-label="Athletes">
       {% for user in users %}
-        <a class="athlete-card" href="{{ url_for('user_profile', user_id=user.user_id) }}">
-          <span class="profile-avatar">{{ user.username[0]|upper }}</span>
-          <strong>{{ user.username }}</strong>
-          <span>{{ user.activity_count }} activities <i>·</i> {{ '%.1f'|format(user.total_distance|float) }} km</span>
-          <span class="athlete-card-link">View profile <b>→</b></span>
-        </a>
+        <article class="athlete-card-wrap">
+          <a class="athlete-card" href="{{ url_for('user_profile', user_id=user.user_id) }}">
+            <span class="profile-avatar">{{ user.username[0]|upper }}</span>
+            <strong>{{ user.username }}</strong>
+            <span>{{ user.activity_count }} activities <i>·</i> {{ '%.1f'|format(user.total_distance|float) }} km</span>
+            <span class="athlete-followers">{{ user.follower_count }} followers</span>
+            <span class="athlete-card-link">View profile <b>→</b></span>
+          </a>
+          {% if current_user and current_user.user_id != user.user_id %}
+            <div class="athlete-card-actions">
+              {% if user.user_id in following_ids %}
+                <form method="post" action="{{ url_for('unfollow_user', user_id=user.user_id) }}">
+                  <button type="submit" class="button button-secondary button-small">Unfollow</button>
+                </form>
+              {% else %}
+                <form method="post" action="{{ url_for('follow_user', user_id=user.user_id) }}">
+                  <button type="submit" class="button button-primary button-small">Follow</button>
+                </form>
+              {% endif %}
+            </div>
+          {% elif current_user and current_user.user_id == user.user_id %}
+            <div class="athlete-card-actions">
+              <span class="you-badge">You</span>
+            </div>
+          {% endif %}
+        </article>
       {% endfor %}
     </section>
   {% else %}
