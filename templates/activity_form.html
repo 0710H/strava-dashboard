@@ -8,7 +8,13 @@
     <div>
       <p class="eyebrow">ACTIVITY DETAILS</p>
       <h1>{{ "Log an activity" if mode == "create" else "Edit activity" }}</h1>
-      <p class="subtitle">Record a session for an athlete in your local Strava database.</p>
+      <p class="subtitle">
+        {% if mode == "create" %}
+          Recording as <strong>{{ current_user.username }}</strong>.
+        {% else %}
+          Update this session for <strong>{{ current_user.username }}</strong>.
+        {% endif %}
+      </p>
     </div>
   </div>
 
@@ -28,20 +34,6 @@
         <input id="title" name="title" type="text" maxlength="150" required
                value="{{ values.title }}" aria-invalid="{{ 'true' if errors.title else 'false' }}">
         {% if errors.title %}<span class="field-error">{{ errors.title }}</span>{% endif %}
-      </div>
-
-      <div class="form-field">
-        <label for="user_id">Athlete</label>
-        <select id="user_id" name="user_id" required aria-invalid="{{ 'true' if errors.user_id else 'false' }}">
-          <option value="">Choose an athlete</option>
-          {% for user in users %}
-            <option value="{{ user.user_id }}" {% if values.user_id|string == user.user_id|string %}selected{% endif %}>
-              {{ user.username }}
-            </option>
-          {% endfor %}
-        </select>
-        {% if not users %}<span class="field-hint">Add an athlete to the users table before logging an activity.</span>{% endif %}
-        {% if errors.user_id %}<span class="field-error">{{ errors.user_id }}</span>{% endif %}
       </div>
 
       <div class="form-field">
@@ -78,7 +70,7 @@
             </option>
           {% endfor %}
         </select>
-        <span class="field-hint">Routes from all athletes are available; the route owner is shown.</span>
+        <span class="field-hint">Optional. Route owner is shown next to the name.</span>
         {% if errors.route_id %}<span class="field-error">{{ errors.route_id }}</span>{% endif %}
       </div>
 
