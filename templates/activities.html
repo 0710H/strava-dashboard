@@ -12,13 +12,25 @@
     </div>
     <div class="heading-actions">
       <span class="date-chip">{{ activities|length }} ACTIVITIES</span>
-      <a class="button button-primary" href="{{ url_for('create_activity') }}">+ Log activity</a>
+      {% if current_user %}
+        <a class="button button-primary" href="{{ url_for('create_activity') }}">+ Log activity</a>
+      {% else %}
+        <a class="button button-primary" href="{{ url_for('login', next=url_for('create_activity')) }}">Log in to add</a>
+      {% endif %}
     </div>
   </div>
 
   {% if notice %}
     <p class="success-notice" role="status">{{ notice }}</p>
   {% endif %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}" role="status">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 
   <section class="activity-panel">
     <div class="section-heading">
@@ -29,7 +41,7 @@
       <span class="results-count">{{ activities|length }} total</span>
     </div>
     {% set empty_title = "No activities yet" %}
-    {% set empty_message = "Add an activity to start filling your training feed." %}
+    {% set empty_message = "Log in and add an activity to start filling your training feed." %}
     {% include "_activity_list.html" %}
   </section>
 {% endblock %}
