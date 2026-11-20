@@ -1,15 +1,24 @@
+import hashlib
 import logging
 import os
+
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
 import mysql.connector
 from dotenv import load_dotenv
-from flask import Flask, abort, jsonify, redirect, render_template, request, url_for
+
+
+from functools import wraps
+
+import mysql.connector
+from dotenv import load_dotenv
+from flask import Flask, abort,flash,jsonify,redirect,render_template, request,session, url_for
 
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", "dev-strava-dashboard-secret")
 logging.basicConfig(level=logging.INFO)
 
 
@@ -37,6 +46,51 @@ def fetch_all(query, parameters=()):
 def fetch_one(query, parameters=()):
     rows = fetch_all(query, parameters)
     return rows[0] if rows else None
+
+
+def execute(query, parameters=()):
+    connection = get_connection()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(query, parameters)
+            connection.commit()
+            return cursor.lastrowid
+    finally:
+        connection.close()
+
+
+def hash_password(password: str) -> str:
+    """Match demo_data.sql: SHA2(password, 256)."""
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+
+
+def get_current_user():
+    user_id = session.get("user_id")
+    if not user_id:
+        return None
+    try:
+        return fetch_one(
+            "SELECT user_id, username, email FROM users WHERE user_id = %s",
+            (user_id,),
+        )
+    except mysql.connector.Error:
+        return None
+
+
+def login_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if get_current_user() is None:
+            flash("Please log in to continue.", "error")
+            return redirect(url_for("login", next=request.path))
+        return view(*args, **kwargs)
+
+    return wrapped
+
+
+@app.context_processor
+def inject_current_user():
+    return {"current_user": get_current_user()}
 
 
 ACTIVITY_QUERY = """
@@ -392,6 +446,57 @@ def activities_page():
         return database_error_page()
 
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if get_current_user() is not None:
+        return redirect(url_for("dashboard"))
+
+    if request.method == "POST":
+        username = (request.form.get("username") or "").strip()
+        password = request.form.get("password") or ""
+        next_url = request.form.get("next") or request.args.get("next") or url_for("dashboard")
+
+        if not username or not password:
+            flash("Enter both username and password.", "error")
+            return render_template("login.html", next=next_url)
+
+        try:
+            user = fetch_one(
+                """
+                SELECT user_id, username, password_hash
+                FROM users
+                WHERE username = %s
+                """,
+                (username,),
+            )
+        except mysql.connector.Error:
+            return database_error_page()
+
+        if user is None or user["password_hash"] != hash_password(password):
+            flash("Invalid username or password.", "error")
+            return render_template("login.html", next=next_url)
+
+        session.clear()
+        session["user_id"] = user["user_id"]
+        session["username"] = user["username"]
+        flash(f"Welcome back, {user['username']}.", "success")
+
+        # Only allow relative redirects
+        if not next_url.startswith("/"):
+            next_url = url_for("dashboard")
+        return redirect(next_url)
+
+    next_url = request.args.get("next") or url_for("dashboard")
+    return render_template("login.html", next=next_url)
+
+
+@app.post("/logout")
+def logout():
+    session.clear()
+    flash("You have been logged out.", "success")
+    return redirect(url_for("dashboard"))
+
+
 @app.get("/routes")
 def routes_page():
     try:
@@ -418,6 +523,39 @@ def routes_page():
         return render_template("routes.html", routes=routes)
     except mysql.connector.Error:
         return database_error_page()
+
+
+@app.post("/routes/create")
+@login_required
+def create_route():
+    try:
+        user = get_current_user()
+        route_name = (request.form.get("route_name") or "").strip()
+        distance = request.form.get("distance", type=float)
+        elevation = request.form.get("elevation", type=float)
+        description = (request.form.get("description") or "").strip() or None
+
+        if not route_name or distance is None or elevation is None:
+            flash("Please fill in route name, distance, and elevation.", "error")
+            return redirect(url_for("routes_page"))
+
+        if distance < 0 or elevation < 0:
+            flash("Distance and elevation must be zero or greater.", "error")
+            return redirect(url_for("routes_page"))
+
+        execute(
+            """
+            INSERT INTO routes (user_id, route_name, distance, elevation, description)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (user["user_id"], route_name[:150], distance, elevation, description),
+        )
+        flash(f'Route "{route_name}" created successfully.', "success")
+        return redirect(url_for("routes_page"))
+    except mysql.connector.Error:
+        app.logger.exception("Failed to create route")
+        flash("Could not create the route. Check the database connection.", "error")
+        return redirect(url_for("routes_page"))
 
 
 @app.get("/users")

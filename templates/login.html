@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% set page_title = "Log in" %}
+{% set active_page = "login" %}
+
+{% block content %}
+  <div class="login-wrap">
+    <div class="login-card">
+      <p class="eyebrow">ACCOUNT</p>
+      <h1>Log in</h1>
+      <p class="subtitle">Sign in with one of the demo athletes to create routes as that user.</p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}" role="status">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form class="login-form" method="post" action="{{ url_for('login') }}">
+        <input type="hidden" name="next" value="{{ next }}">
+        <label class="form-field">
+          <span>Username</span>
+          <input type="text" name="username" autocomplete="username" required autofocus placeholder="e.g. demo_alex">
+        </label>
+        <label class="form-field">
+          <span>Password</span>
+          <input type="password" name="password" autocomplete="current-password" required placeholder="Your password">
+        </label>
+        <button type="submit" class="btn-primary btn-block">Log in</button>
+      </form>
+
+      <div class="login-hint">
+        <p class="eyebrow">DEMO ACCOUNTS</p>
+        <ul>
+          <li><code>demo_alex</code> / <code>demo-only-alex</code></li>
+          <li><code>demo_jamie</code> / <code>demo-only-jamie</code></li>
+          <li><code>demo_taylor</code> / <code>demo-only-taylor</code></li>
+          <li><code>demo_morgan</code> / <code>demo-only-morgan</code></li>
+          <li><code>demo_riley</code> / <code>demo-only-riley</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock %}
