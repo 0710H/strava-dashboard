@@ -2,8 +2,8 @@
 
 A local Flask dashboard for a MySQL `strava` database. It includes a training
 dashboard, activity feed with activity CRUD, route and athlete directories, and
-individual athlete profiles. This demonstration app has no login; activity
-records are associated with an existing athlete selected in the form.
+individual athlete profiles. This demonstration app has login function with demo account provided ; activity
+records are associated with an existing athlete.
 
 ## Requirements
 
@@ -60,8 +60,8 @@ Open [http://127.0.0.1:5000](http://127.0.0.1:5000). The database health endpoin
 is [http://127.0.0.1:5000/healthz](http://127.0.0.1:5000/healthz).
 
 - **Read:** The dashboard, activity feed, and athlete profiles display activities.
-- **Create:** Open **Activities**, choose **Log activity**, select an existing
-  athlete, and enter a title, distance in km, date/time, and duration in seconds.
+- **Create:** Open **Activities**, choose **Log activity**, enter a title,
+  distance in km, date/time, and duration in seconds.
   A route is optional; routes shared by any athlete can be selected.
 - **Update:** Choose **Edit** beside an activity, change its details, and save.
 - **Delete:** Choose **Delete**, review the number of related kudos and comments,
